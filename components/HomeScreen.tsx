@@ -18,11 +18,13 @@ import { OfflineBanner } from './OfflineBanner';
 import { PharmacyRow } from './PharmacyRow';
 
 type Filter = 'garde' | 'all';
+type ViewMode = 'list' | 'map';
 
 export function HomeScreen() {
   const { status, pharmacies, error, refetch } = usePharmaciesNearby();
   const isOffline = useIsOffline();
   const [filter, setFilter] = useState<Filter>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const filteredPharmacies =
     filter === 'garde' ? pharmacies.filter((p) => p.on_garde) : pharmacies;
@@ -76,9 +78,21 @@ export function HomeScreen() {
           </Text>
         </Pressable>
         <View style={styles.viewToggle}>
-          <Ionicons name="list" size={15} color={colors.textMuted50} />
+          <Pressable onPress={() => setViewMode('list')} hitSlop={8}>
+            <Ionicons
+              name="list"
+              size={15}
+              color={viewMode === 'list' ? colors.accent : colors.textMuted50}
+            />
+          </Pressable>
           <Text style={styles.viewToggleSlash}>/</Text>
-          <Ionicons name="map-outline" size={15} color={colors.textMuted50} />
+          <Pressable onPress={() => setViewMode('map')} hitSlop={8}>
+            <Ionicons
+              name="map-outline"
+              size={15}
+              color={viewMode === 'map' ? colors.accent : colors.textMuted50}
+            />
+          </Pressable>
         </View>
       </View>
 
