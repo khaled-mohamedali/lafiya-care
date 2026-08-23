@@ -62,7 +62,11 @@ export function HomeScreen() {
         <OfflineBanner message="Données du 15:00 · garde peut-être obsolète" />
       )}
 
-      <MapStrip onPress={() => setViewMode("map")} />
+      <MapStrip
+        onPress={() => setViewMode(viewMode === "list" ? "map" : "list")}
+        label={viewMode === "list" ? "aperçu carte" : "Voir la liste"}
+        icon={viewMode === "list" ? "map-outline" : "list"}
+      />
 
       <View style={styles.filterRow}>
         <Pressable
