@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useIsOffline } from '../hooks/useIsOffline';
 import { usePharmaciesNearby } from '../hooks/usePharmaciesNearby';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { MapStrip } from './MapStrip';
@@ -17,6 +18,7 @@ import { PharmacyRow } from './PharmacyRow';
 
 export function HomeScreen() {
   const { status, pharmacies, error, refetch } = usePharmaciesNearby();
+  const isOffline = useIsOffline();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -38,7 +40,9 @@ export function HomeScreen() {
         <Text style={styles.searchPlaceholder}>Rechercher une pharmacie</Text>
       </View>
 
-      <OfflineBanner message="Données du 15:00 · garde peut-être obsolète" />
+      {isOffline && (
+        <OfflineBanner message="Données du 15:00 · garde peut-être obsolète" />
+      )}
 
       <MapStrip />
 
