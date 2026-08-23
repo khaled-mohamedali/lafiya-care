@@ -4,12 +4,12 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsOffline } from '../hooks/useIsOffline';
 import { usePharmaciesNearby } from '../hooks/usePharmaciesNearby';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
