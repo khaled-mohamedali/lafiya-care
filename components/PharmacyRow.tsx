@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
+import { RootStackParamList } from '../types/navigation';
 import { Pharmacy } from '../types/pharmacy';
 
 function formatDistance(distanceM: number): string {
@@ -9,12 +12,16 @@ function formatDistance(distanceM: number): string {
 }
 
 export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const statusText = pharmacy.on_garde
     ? `Ouvert · ${formatDistance(pharmacy.distance_m)}`
     : formatDistance(pharmacy.distance_m);
 
   return (
-    <View style={styles.row}>
+    <Pressable
+      style={styles.row}
+      onPress={() => navigation.navigate('PharmacyDetail', { pharmacy })}
+    >
       <View style={styles.header}>
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
           {pharmacy.name}
@@ -39,7 +46,7 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
           <Text style={styles.filledButtonText}>Appeler</Text>
         </Pressable>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
