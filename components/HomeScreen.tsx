@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,9 +17,15 @@ import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
 import { PharmacyRow } from './PharmacyRow';
 
+type Filter = 'garde' | 'all';
+
 export function HomeScreen() {
   const { status, pharmacies, error, refetch } = usePharmaciesNearby();
   const isOffline = useIsOffline();
+  const [filter, setFilter] = useState<Filter>('all');
+
+  const filteredPharmacies =
+    filter === 'garde' ? pharmacies.filter((p) => p.on_garde) : pharmacies;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -47,12 +54,26 @@ export function HomeScreen() {
       <MapStrip />
 
       <View style={styles.filterRow}>
-        <Pressable style={styles.gardeChip}>
-          <Ionicons name="moon" size={13} color={colors.white} />
-          <Text style={styles.gardeChipText}>De garde</Text>
+        <Pressable
+          style={filter === 'garde' ? styles.gardeChipActive : styles.chipInactive}
+          onPress={() => setFilter('garde')}
+        >
+          <Ionicons
+            name="moon"
+            size={13}
+            color={filter === 'garde' ? colors.white : colors.garde}
+          />
+          <Text style={filter === 'garde' ? styles.chipActiveText : styles.chipInactiveText}>
+            De garde
+          </Text>
         </Pressable>
-        <Pressable style={styles.allChip}>
-          <Text style={styles.allChipText}>Toutes</Text>
+        <Pressable
+          style={filter === 'all' ? styles.allChipActive : styles.chipInactive}
+          onPress={() => setFilter('all')}
+        >
+          <Text style={filter === 'all' ? styles.chipActiveText : styles.chipInactiveText}>
+            Toutes
+          </Text>
         </Pressable>
         <View style={styles.viewToggle}>
           <Ionicons name="list" size={15} color={colors.textMuted50} />
@@ -87,9 +108,18 @@ export function HomeScreen() {
         </View>
       )}
 
-      {status === 'success' && (
+      {status === 'success' && filteredPharmacies.length === 0 && (
+        <View style={styles.centered}>
+          <Text style={styles.emptyText}>Aucune pharmacie de garde à proximité</Text>
+          <Pressable style={styles.retryButton} onPress={() => setFilter('all')}>
+            <Text style={styles.retryText}>Afficher toutes les pharmacies</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {status === 'success' && filteredPharmacies.length > 0 && (
         <FlatList
-          data={pharmacies}
+          data={filteredPharmacies}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <PharmacyRow pharmacy={item} />}
         />
@@ -141,7 +171,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.s4 + 2,
     paddingVertical: spacing.s3 + 2,
   },
-  gardeChip: {
+  gardeChipActive: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -150,19 +180,31 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.s2,
     paddingHorizontal: spacing.s4,
   },
-  gardeChipText: {
-    fontFamily: fonts.bodySemiBold,
-    fontSize: fontSizes.sm,
-    color: colors.white,
+  allChipActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.accent,
+    borderRadius: radii.pill,
+    paddingVertical: spacing.s2,
+    paddingHorizontal: spacing.s4,
   },
-  allChip: {
+  chipInactive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     borderWidth: 1,
     borderColor: colors.divider,
     borderRadius: radii.pill,
     paddingVertical: spacing.s2,
     paddingHorizontal: spacing.s4,
   },
-  allChipText: {
+  chipActiveText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.white,
+  },
+  chipInactiveText: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.textMuted60,
@@ -218,5 +260,6 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.smd,
     color: colors.textMuted60,
     textAlign: 'center',
+    marginBottom: spacing.s4,
   },
 });
