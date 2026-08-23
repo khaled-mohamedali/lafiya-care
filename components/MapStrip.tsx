@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 
-export function MapStrip() {
+export function MapStrip({ onPress }: { onPress?: () => void }) {
   return (
-    <View style={styles.strip}>
+    <Pressable style={styles.strip} onPress={onPress}>
       <Ionicons name="map-outline" size={15} color={colors.textMuted50} />
       <Text style={styles.text}>aperçu carte</Text>
-    </View>
+    </Pressable>
   );
 }
 
