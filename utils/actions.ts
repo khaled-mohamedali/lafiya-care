@@ -20,12 +20,29 @@ export async function callPharmacy(phone: string): Promise<void> {
   }
 }
 
+// Rejects missing/NaN values, out-of-range values, and (0, 0) — "Null
+// Island", the common sentinel for a coordinate that was never set.
+export function isValidCoordinate(latitude: number, longitude: number): boolean {
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180 &&
+    !(latitude === 0 && longitude === 0)
+  );
+}
+
 export async function openDirections(pharmacy: {
   name: string;
   latitude: number;
   longitude: number;
 }): Promise<void> {
   const { name, latitude, longitude } = pharmacy;
+
+  if (!isValidCoordinate(latitude, longitude)) {
+    Alert.alert('Position invalide', "La position de cette pharmacie n'est pas disponible.");
+    return;
+  }
 
   const nativeUrl = Platform.select({
     ios: `maps://?daddr=${latitude},${longitude}&dirflg=d`,
