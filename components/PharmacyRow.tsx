@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { RootStackParamList } from '../types/navigation';
 import { Pharmacy } from '../types/pharmacy';
+import { callPharmacy, openDirections } from '../utils/actions';
 
 function formatDistance(distanceM: number): string {
   const km = distanceM / 1000;
@@ -37,13 +38,19 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
       <Text style={styles.status}>{statusText}</Text>
 
       <View style={styles.actions}>
-        <Pressable style={styles.outlineButton} onPress={() => {}}>
+        <Pressable style={styles.outlineButton} onPress={() => openDirections(pharmacy)}>
           <Ionicons name="navigate-outline" size={13} color={colors.text} />
           <Text style={styles.outlineButtonText}>Itinéraire</Text>
         </Pressable>
-        <Pressable style={styles.filledButton} onPress={() => {}}>
+        <Pressable
+          style={[styles.filledButton, !pharmacy.phone && styles.disabledButton]}
+          onPress={() => pharmacy.phone && callPharmacy(pharmacy.phone)}
+          disabled={!pharmacy.phone}
+        >
           <Ionicons name="call" size={13} color={colors.white} />
-          <Text style={styles.filledButtonText}>Appeler</Text>
+          <Text style={styles.filledButtonText}>
+            {pharmacy.phone ? 'Appeler' : 'Numéro non disponible'}
+          </Text>
         </Pressable>
       </View>
     </Pressable>
@@ -120,6 +127,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
     borderRadius: radii.pill,
     paddingVertical: spacing.s3,
+  },
+  disabledButton: {
+    opacity: 0.45,
   },
   filledButtonText: {
     fontFamily: fonts.bodySemiBold,

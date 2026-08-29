@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsOffline } from '../hooks/useIsOffline';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { RootStackParamList } from '../types/navigation';
+import { callPharmacy, openDirections } from '../utils/actions';
 import { getTodayHoursText, getWeeklyHours } from '../utils/hours';
 import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
@@ -101,13 +102,13 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
         </View>
 
         <View style={styles.actionsSection}>
-          <Pressable style={styles.outlineButton} onPress={() => {}}>
+          <Pressable style={styles.outlineButton} onPress={() => openDirections(pharmacy)}>
             <Ionicons name="navigate-outline" size={14} color={colors.text} />
             <Text style={styles.outlineButtonText}>Itinéraire</Text>
           </Pressable>
           <Pressable
             style={[styles.filledButton, !pharmacy.phone && styles.disabledButton]}
-            onPress={() => {}}
+            onPress={() => pharmacy.phone && callPharmacy(pharmacy.phone)}
             disabled={!pharmacy.phone}
           >
             <Ionicons name="call" size={14} color={colors.white} />
