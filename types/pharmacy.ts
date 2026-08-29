@@ -8,6 +8,7 @@ export interface Pharmacy {
   hours: PharmacyHours | null;
   distance_m: number;
   on_garde: boolean;
+  garde_until: string | null;
   latitude: number;
   longitude: number;
 }
