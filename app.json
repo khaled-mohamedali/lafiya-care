@@ -23,7 +23,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Lafiya Care utilise votre position pour afficher votre position actuelle."
+        }
+      ]
     ]
   }
 }

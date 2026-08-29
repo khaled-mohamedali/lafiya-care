@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDeviceLocationLabel } from "../hooks/useDeviceLocationLabel";
 import { useIsOffline } from "../hooks/useIsOffline";
 import { usePharmaciesNearby } from "../hooks/usePharmaciesNearby";
 import { colors, fonts, fontSizes, radii, spacing } from "../theme/tokens";
@@ -28,6 +29,7 @@ export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { status, pharmacies, error, refetch } = usePharmaciesNearby();
   const isOffline = useIsOffline();
+  const deviceLocationLabel = useDeviceLocationLabel();
   const [filter, setFilter] = useState<Filter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
@@ -44,7 +46,7 @@ export function HomeScreen() {
           size={15}
           color={colors.textMuted60}
         />
-        <Text style={styles.locationText}>Niamey · Plateau</Text>
+        <Text style={styles.locationText}>{deviceLocationLabel ?? "Niamey · Plateau"}</Text>
         <Ionicons
           name="chevron-down"
           size={14}
