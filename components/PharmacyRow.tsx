@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { RootStackParamList } from '../types/navigation';
 import { Pharmacy } from '../types/pharmacy';
-import { callPharmacy, openDirections } from '../utils/actions';
+import { callPharmacy, isValidPhoneNumber, openDirections } from '../utils/actions';
 
 function formatDistance(distanceM: number): string {
   const km = distanceM / 1000;
@@ -17,6 +17,8 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
   const statusText = pharmacy.on_garde
     ? `Ouvert · ${formatDistance(pharmacy.distance_m)}`
     : formatDistance(pharmacy.distance_m);
+  const canCall = !!pharmacy.phone && isValidPhoneNumber(pharmacy.phone);
+  const callLabel = canCall ? 'Appeler' : pharmacy.phone ? 'Numéro invalide' : 'Numéro non disponible';
 
   return (
     <Pressable
@@ -43,14 +45,12 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
           <Text style={styles.outlineButtonText}>Itinéraire</Text>
         </Pressable>
         <Pressable
-          style={[styles.filledButton, !pharmacy.phone && styles.disabledButton]}
-          onPress={() => pharmacy.phone && callPharmacy(pharmacy.phone)}
-          disabled={!pharmacy.phone}
+          style={[styles.filledButton, !canCall && styles.disabledButton]}
+          onPress={() => canCall && callPharmacy(pharmacy.phone!)}
+          disabled={!canCall}
         >
           <Ionicons name="call" size={13} color={colors.white} />
-          <Text style={styles.filledButtonText}>
-            {pharmacy.phone ? 'Appeler' : 'Numéro non disponible'}
-          </Text>
+          <Text style={styles.filledButtonText}>{callLabel}</Text>
         </Pressable>
       </View>
     </Pressable>

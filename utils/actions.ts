@@ -1,6 +1,18 @@
 import { Alert, Linking, Platform } from 'react-native';
 
+// Loose E.164-ish check: an optional leading +, then 7-15 digits. Good enough
+// to catch obviously-wrong data (e.g. placeholder seed numbers) without
+// rejecting real-world formatting we haven't anticipated.
+export function isValidPhoneNumber(phone: string): boolean {
+  return /^\+?\d{7,15}$/.test(phone.replace(/[\s()-]/g, ''));
+}
+
 export async function callPharmacy(phone: string): Promise<void> {
+  if (!isValidPhoneNumber(phone)) {
+    Alert.alert('Numéro invalide', 'Ce numéro de téléphone ne semble pas valide.');
+    return;
+  }
+
   try {
     await Linking.openURL(`tel:${phone}`);
   } catch {

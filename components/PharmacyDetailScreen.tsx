@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useIsOffline } from '../hooks/useIsOffline';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { RootStackParamList } from '../types/navigation';
-import { callPharmacy, openDirections } from '../utils/actions';
+import { callPharmacy, isValidPhoneNumber, openDirections } from '../utils/actions';
 import { getTodayHoursText, getWeeklyHours } from '../utils/hours';
 import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
@@ -25,6 +25,8 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
   const [showWeeklyHours, setShowWeeklyHours] = useState(false);
 
   const weeklyHours = getWeeklyHours(pharmacy.hours);
+  const canCall = !!pharmacy.phone && isValidPhoneNumber(pharmacy.phone);
+  const callLabel = canCall ? 'Appeler' : pharmacy.phone ? 'Numéro invalide' : 'Numéro non disponible';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
@@ -107,14 +109,12 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
             <Text style={styles.outlineButtonText}>Itinéraire</Text>
           </Pressable>
           <Pressable
-            style={[styles.filledButton, !pharmacy.phone && styles.disabledButton]}
-            onPress={() => pharmacy.phone && callPharmacy(pharmacy.phone)}
-            disabled={!pharmacy.phone}
+            style={[styles.filledButton, !canCall && styles.disabledButton]}
+            onPress={() => canCall && callPharmacy(pharmacy.phone!)}
+            disabled={!canCall}
           >
             <Ionicons name="call" size={14} color={colors.white} />
-            <Text style={styles.filledButtonText}>
-              {pharmacy.phone ? 'Appeler' : 'Numéro non disponible'}
-            </Text>
+            <Text style={styles.filledButtonText}>{callLabel}</Text>
           </Pressable>
         </View>
 
