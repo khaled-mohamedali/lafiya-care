@@ -43,3 +43,42 @@ export function getWeeklyHours(hours: PharmacyHours | null): { label: string; va
     value: rangeFor(hours, key) ?? 'Fermé',
   }));
 }
+
+const FRENCH_MONTHS = [
+  'janvier',
+  'février',
+  'mars',
+  'avril',
+  'mai',
+  'juin',
+  'juillet',
+  'août',
+  'septembre',
+  'octobre',
+  'novembre',
+  'décembre',
+];
+
+// Parses "YYYY-MM-DD" by hand rather than via `Date`, so the result can't
+// shift by a day when rendered under a different timezone than the date
+// was issued in (see the Niamey-vs-device-timezone note above).
+export function formatGardeUntil(dateStr: string): string {
+  const [, monthStr, dayStr] = dateStr.split('-');
+  const day = parseInt(dayStr, 10);
+  const month = FRENCH_MONTHS[parseInt(monthStr, 10) - 1];
+  return `${day} ${month}`;
+}
+
+function todayDateStringInNiamey(): string {
+  // en-CA formats as YYYY-MM-DD, matching the RPC's date columns so the
+  // two can be compared as plain strings.
+  return new Date().toLocaleDateString('en-CA', { timeZone: NIAMEY_TZ });
+}
+
+// Groundwork for offline caching: whether a cached garde_until is still
+// within its period ("fresh") or the period has already ended ("stale").
+// Not wired into any UI yet.
+export function isGardeInfoFresh(gardeUntil: string | null): boolean {
+  if (!gardeUntil) return false;
+  return todayDateStringInNiamey() <= gardeUntil;
+}
