@@ -12,7 +12,7 @@ import {
   isValidPhoneNumber,
   openDirections,
 } from '../utils/actions';
-import { getTodayHoursText, getWeeklyHours } from '../utils/hours';
+import { formatGardeUntil, getTodayHoursText, getWeeklyHours } from '../utils/hours';
 import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
 
@@ -76,6 +76,11 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
             <Ionicons name="time-outline" size={15} color={colors.text} />
             <Text style={styles.hoursText}>{getTodayHoursText(pharmacy.hours)}</Text>
           </View>
+          {pharmacy.on_garde && pharmacy.garde_until && (
+            <Text style={styles.gardeUntilText}>
+              De garde jusqu'au {formatGardeUntil(pharmacy.garde_until)}
+            </Text>
+          )}
           <Pressable
             style={styles.weeklyToggle}
             onPress={() => setShowWeeklyHours((v) => !v)}
@@ -221,6 +226,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontSize: fontSizes.smd,
     color: colors.text,
+  },
+  gardeUntilText: {
+    marginTop: 4,
+    marginLeft: 23,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.sm,
+    color: colors.garde,
   },
   weeklyToggle: {
     flexDirection: 'row',
