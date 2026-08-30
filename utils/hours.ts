@@ -4,9 +4,6 @@ import { PharmacyHours } from '../types/pharmacy';
 // device's, since testing happens from Charlotte, NC (see kickoff brief).
 const NIAMEY_TZ = 'Africa/Niamey';
 
-// Indexed to match JS Date#getDay() (Sunday = 0).
-const WEEKDAY_INDEX_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-
 // Display order for the weekly hours expander (Monday first).
 const DISPLAY_ORDER_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -20,11 +17,26 @@ const DAY_LABELS: Record<string, string> = {
   sun: 'Dimanche',
 };
 
+const SHORT_WEEKDAY_TO_KEY: Record<string, string> = {
+  Sun: 'sun',
+  Mon: 'mon',
+  Tue: 'tue',
+  Wed: 'wed',
+  Thu: 'thu',
+  Fri: 'fri',
+  Sat: 'sat',
+};
+
+// Reads the weekday directly as a formatted string rather than round-
+// tripping through `new Date(localeString)` — Hermes can't reliably
+// re-parse a locale-formatted string (silently yields an Invalid Date),
+// even though that pattern works fine in Node/V8.
 function todayKeyInNiamey(): string {
-  const weekdayIndex = new Date(
-    new Date().toLocaleString('en-US', { timeZone: NIAMEY_TZ })
-  ).getDay();
-  return WEEKDAY_INDEX_KEYS[weekdayIndex];
+  const short = new Date().toLocaleDateString('en-US', {
+    timeZone: NIAMEY_TZ,
+    weekday: 'short',
+  });
+  return SHORT_WEEKDAY_TO_KEY[short];
 }
 
 function rangeFor(hours: PharmacyHours | null, dayKey: string): string | null {
