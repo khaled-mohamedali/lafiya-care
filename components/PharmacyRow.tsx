@@ -11,13 +11,21 @@ import {
   isValidPhoneNumber,
   openDirections,
 } from '../utils/actions';
+import { isGardeInfoFresh } from '../utils/hours';
 
 function formatDistance(distanceM: number): string {
   const km = distanceM / 1000;
   return `${km.toFixed(1).replace('.', ',')} km`;
 }
 
-export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
+interface Props {
+  pharmacy: Pharmacy;
+  // True when the list is showing a previous session's cached data rather
+  // than a fresh fetch — used to flag a possibly-expired garde period.
+  isShowingCachedData?: boolean;
+}
+
+export function PharmacyRow({ pharmacy, isShowingCachedData = false }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const statusText = pharmacy.on_garde
     ? `Ouvert · ${formatDistance(pharmacy.distance_m)}`
@@ -25,6 +33,8 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
   const canCall = !!pharmacy.phone && isValidPhoneNumber(pharmacy.phone);
   const callLabel = canCall ? 'Appeler' : pharmacy.phone ? 'Numéro invalide' : 'Numéro non disponible';
   const canNavigate = isValidCoordinate(pharmacy.latitude, pharmacy.longitude);
+  const gardeMayBeStale =
+    pharmacy.on_garde && isShowingCachedData && !isGardeInfoFresh(pharmacy.garde_until);
 
   return (
     <Pressable
@@ -38,7 +48,9 @@ export function PharmacyRow({ pharmacy }: { pharmacy: Pharmacy }) {
         {pharmacy.on_garde && (
           <View style={styles.badge}>
             <Ionicons name="moon" size={11} color={colors.white} />
-            <Text style={styles.badgeText}>garde</Text>
+            <Text style={styles.badgeText}>
+              {gardeMayBeStale ? 'garde · à confirmer' : 'garde'}
+            </Text>
           </View>
         )}
       </View>
