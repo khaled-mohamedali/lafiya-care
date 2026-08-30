@@ -11,7 +11,7 @@ import {
   isValidPhoneNumber,
   openDirections,
 } from '../utils/actions';
-import { isGardeInfoFresh } from '../utils/hours';
+import { getOpenStatus, isGardeInfoFresh } from '../utils/hours';
 
 function formatDistance(distanceM: number): string {
   const km = distanceM / 1000;
@@ -35,6 +35,7 @@ export function PharmacyRow({ pharmacy, isShowingCachedData = false }: Props) {
   const canNavigate = isValidCoordinate(pharmacy.latitude, pharmacy.longitude);
   const gardeMayBeStale =
     pharmacy.on_garde && isShowingCachedData && !isGardeInfoFresh(pharmacy.garde_until);
+  const isClosed = getOpenStatus(pharmacy.hours) === 'closed';
 
   return (
     <Pressable
@@ -55,7 +56,14 @@ export function PharmacyRow({ pharmacy, isShowingCachedData = false }: Props) {
         )}
       </View>
 
-      <Text style={styles.status}>{statusText}</Text>
+      <View style={styles.statusRow}>
+        {isClosed && (
+          <View style={styles.closedTag}>
+            <Text style={styles.closedTagText}>Fermé</Text>
+          </View>
+        )}
+        <Text style={styles.status}>{statusText}</Text>
+      </View>
 
       <View style={styles.actions}>
         <Pressable
@@ -115,11 +123,27 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: colors.white,
   },
-  status: {
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginTop: 5,
+  },
+  status: {
     fontFamily: fonts.body,
     fontSize: fontSizes.sm,
     color: colors.textMuted55,
+  },
+  closedTag: {
+    backgroundColor: colors.closed,
+    borderRadius: radii.pill,
+    paddingVertical: 2,
+    paddingHorizontal: 7,
+  },
+  closedTagText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.white,
   },
   actions: {
     flexDirection: 'row',
