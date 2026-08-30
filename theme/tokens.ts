@@ -21,6 +21,11 @@ export const colors = {
 
   garde: '#a86f14',
   white: '#ffffff',
+
+  // The base "modernist" design system's original accent, before this app
+  // overrode it to teal — reused here as the reserved red for a closed
+  // status rather than inventing a new, uncoordinated hex.
+  closed: '#ec3013',
 };
 
 export const spacing = {
