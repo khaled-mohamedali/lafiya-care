@@ -12,7 +12,7 @@ import {
   isValidPhoneNumber,
   openDirections,
 } from '../utils/actions';
-import { formatGardeUntil, getTodayHoursText, getWeeklyHours } from '../utils/hours';
+import { formatGardeUntil, getOpenStatus, getTodayHoursText, getWeeklyHours } from '../utils/hours';
 import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
 
@@ -33,6 +33,7 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
   const canCall = !!pharmacy.phone && isValidPhoneNumber(pharmacy.phone);
   const callLabel = canCall ? 'Appeler' : pharmacy.phone ? 'Numéro invalide' : 'Numéro non disponible';
   const canNavigate = isValidCoordinate(pharmacy.latitude, pharmacy.longitude);
+  const isClosed = getOpenStatus(pharmacy.hours) === 'closed';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
@@ -57,6 +58,11 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
               <View style={styles.gardeBadge}>
                 <Ionicons name="moon" size={12} color={colors.white} />
                 <Text style={styles.gardeBadgeText}>garde</Text>
+              </View>
+            )}
+            {isClosed && (
+              <View style={styles.closedTag}>
+                <Text style={styles.closedTagText}>Fermé</Text>
               </View>
             )}
             <View style={styles.verifiedBadge}>
@@ -186,6 +192,17 @@ const styles = StyleSheet.create({
     paddingRight: 9,
   },
   gardeBadgeText: {
+    fontFamily: fonts.bodySemiBold,
+    fontSize: fontSizes.xs,
+    color: colors.white,
+  },
+  closedTag: {
+    backgroundColor: colors.closed,
+    borderRadius: radii.pill,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+  },
+  closedTagText: {
     fontFamily: fonts.bodySemiBold,
     fontSize: fontSizes.xs,
     color: colors.white,
