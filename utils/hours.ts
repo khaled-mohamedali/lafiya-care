@@ -70,6 +70,10 @@ export function getOpenStatus(hours: PharmacyHours | null): OpenStatus {
   const range = rangeFor(hours, todayKeyInNiamey());
   if (!range) return 'unknown';
 
+  // Some pharmacies use the literal string "closed" for a day off, rather
+  // than an "HH:MM-HH:MM" range or omitting the key entirely.
+  if (range.trim().toLowerCase() === 'closed') return 'closed';
+
   const [openStr, closeStr] = range.split('-');
   if (!openStr || !closeStr) return 'unknown';
 
