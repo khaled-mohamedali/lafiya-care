@@ -44,6 +44,49 @@ export function getWeeklyHours(hours: PharmacyHours | null): { label: string; va
   }));
 }
 
+export type OpenStatus = 'open' | 'closed' | 'unknown';
+
+function minutesSinceMidnightInNiamey(): number {
+  const [hh, mm] = new Date()
+    .toLocaleTimeString('en-GB', { timeZone: NIAMEY_TZ, hour12: false })
+    .split(':');
+  return parseInt(hh, 10) * 60 + parseInt(mm, 10);
+}
+
+function parseTimeToMinutes(time: string): number | null {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(time.trim());
+  if (!match) return null;
+  const hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  if (hours > 23 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+// Only ever returns 'closed' when today's range is present and clearly
+// parseable — any missing data or unexpected format falls back to
+// 'unknown' rather than guessing. Most pharmacies have empty `hours`
+// right now, so 'unknown' is the common, correct outcome.
+export function getOpenStatus(hours: PharmacyHours | null): OpenStatus {
+  const range = rangeFor(hours, todayKeyInNiamey());
+  if (!range) return 'unknown';
+
+  const [openStr, closeStr] = range.split('-');
+  if (!openStr || !closeStr) return 'unknown';
+
+  const openMinutes = parseTimeToMinutes(openStr);
+  const closeMinutes = parseTimeToMinutes(closeStr);
+  if (openMinutes === null || closeMinutes === null) return 'unknown';
+
+  const nowMinutes = minutesSinceMidnightInNiamey();
+
+  const isOpen =
+    openMinutes <= closeMinutes
+      ? nowMinutes >= openMinutes && nowMinutes < closeMinutes
+      : nowMinutes >= openMinutes || nowMinutes < closeMinutes; // overnight range
+
+  return isOpen ? 'open' : 'closed';
+}
+
 const FRENCH_MONTHS = [
   'janvier',
   'février',
