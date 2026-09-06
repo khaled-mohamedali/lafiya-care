@@ -9,6 +9,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,6 +18,7 @@ import { useDeviceLocation } from "../hooks/useDeviceLocation";
 import { useIsOffline } from "../hooks/useIsOffline";
 import { colors, fonts, fontSizes, radii, spacing } from "../theme/tokens";
 import { RootStackParamList } from "../types/navigation";
+import { matchesQuery } from "../utils/search";
 import { MapStrip } from "./MapStrip";
 import { OfflineBanner } from "./OfflineBanner";
 import { PharmacyMap } from "./PharmacyMap";
@@ -33,9 +35,11 @@ export function HomeScreen() {
   const { label: deviceLocationLabel, coords: userLocation } = useDeviceLocation();
   const [filter, setFilter] = useState<Filter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [query, setQuery] = useState("");
 
-  const filteredPharmacies =
-    filter === "garde" ? pharmacies.filter((p) => p.on_garde) : pharmacies;
+  const filteredPharmacies = (
+    filter === "garde" ? pharmacies.filter((p) => p.on_garde) : pharmacies
+  ).filter((p) => matchesQuery(p, query));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -58,7 +62,21 @@ export function HomeScreen() {
 
       <View style={styles.searchField}>
         <Ionicons name="search" size={15} color={colors.textMuted55} />
-        <Text style={styles.searchPlaceholder}>Rechercher une pharmacie</Text>
+        <TextInput
+          style={styles.searchInput}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Rechercher une pharmacie"
+          placeholderTextColor={colors.textMuted55}
+          returnKeyType="search"
+          autoCorrect={false}
+          clearButtonMode="never"
+        />
+        {query.length > 0 && (
+          <Pressable onPress={() => setQuery("")} hitSlop={8}>
+            <Ionicons name="close-circle" size={16} color={colors.textMuted50} />
+          </Pressable>
+        )}
       </View>
 
       {isOffline && cachedAt && (
@@ -155,7 +173,18 @@ export function HomeScreen() {
         </View>
       )}
 
-      {status === "success" && filteredPharmacies.length === 0 && (
+      {status === "success" && filteredPharmacies.length === 0 && query.trim().length > 0 && (
+        <View style={styles.centered}>
+          <Text style={styles.emptyText}>
+            Aucun résultat pour « {query.trim()} »
+          </Text>
+          <Pressable style={styles.retryButton} onPress={() => setQuery("")}>
+            <Text style={styles.retryText}>Effacer la recherche</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {status === "success" && filteredPharmacies.length === 0 && query.trim().length === 0 && (
         <View style={styles.centered}>
           <Text style={styles.emptyText}>
             Aucune pharmacie de garde à proximité
@@ -223,10 +252,12 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     paddingHorizontal: spacing.s4,
   },
-  searchPlaceholder: {
+  searchInput: {
+    flex: 1,
     fontFamily: fonts.body,
     fontSize: fontSizes.smd,
-    color: colors.textMuted55,
+    color: colors.text,
+    padding: 0,
   },
   filterRow: {
     flexDirection: "row",
