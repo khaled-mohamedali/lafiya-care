@@ -5,6 +5,12 @@ import { usePharmaciesNearby } from './usePharmaciesNearby';
 
 type Status = 'loading' | 'success' | 'error' | 'empty';
 
+interface Args {
+  latitude: number;
+  longitude: number;
+  radiusM?: number;
+}
+
 interface Result {
   status: Status;
   pharmacies: Pharmacy[];
@@ -19,20 +25,21 @@ interface Result {
   cachedAt: string | null;
 }
 
-export function useCachedPharmaciesNearby(): Result {
-  const network = usePharmaciesNearby();
+export function useCachedPharmaciesNearby({ latitude, longitude, radiusM }: Args): Result {
+  const network = usePharmaciesNearby({ latitude, longitude, radiusM });
   const [cache, setCache] = useState<PharmacyCache | null>(null);
 
-  // Load whatever a previous session left behind, once, on mount.
+  // Load whatever a previous session left behind for this location, once
+  // per location, on mount and whenever the search location changes.
   useEffect(() => {
     let cancelled = false;
-    loadCachedPharmacies().then((result) => {
+    loadCachedPharmacies({ latitude, longitude }).then((result) => {
       if (!cancelled) setCache(result);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [latitude, longitude]);
 
   // Every time the network fetch produces a real answer (including a
   // legitimate empty result — that's data, not a failure), persist it and
@@ -40,9 +47,9 @@ export function useCachedPharmaciesNearby(): Result {
   useEffect(() => {
     if (network.status !== 'success' && network.status !== 'empty') return;
     const fetchedAt = new Date().toISOString();
-    saveCachedPharmacies(network.pharmacies);
+    saveCachedPharmacies({ latitude, longitude }, network.pharmacies);
     setCache({ pharmacies: network.pharmacies, fetchedAt });
-  }, [network.status, network.pharmacies]);
+  }, [network.status, network.pharmacies, latitude, longitude]);
 
   // Fresh data always wins once the network has a real answer, cached or not.
   if (network.status === 'success' || network.status === 'empty') {
@@ -57,7 +64,8 @@ export function useCachedPharmaciesNearby(): Result {
   }
 
   // Network is still loading, or it just failed — but we have something
-  // from a previous session to show instead of a spinner or error screen.
+  // from a previous session (for this same location) to show instead of a
+  // spinner or error screen.
   if (cache) {
     return {
       status: 'success',
@@ -69,8 +77,8 @@ export function useCachedPharmaciesNearby(): Result {
     };
   }
 
-  // No cache at all (first launch, or it was never written) — behave
-  // exactly like the uncached hook.
+  // No cache for this location (first launch, or it was never written) —
+  // behave exactly like the uncached hook.
   return {
     status: network.status,
     pharmacies: network.pharmacies,
