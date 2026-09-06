@@ -44,6 +44,10 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
     mapRef.current?.animateToRegion(next, 200);
   };
 
+  const recenter = () => {
+    mapRef.current?.animateToRegion(DEFAULT_REGION, 300);
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -83,6 +87,10 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
           <Ionicons name="remove" size={20} color={colors.text} />
         </Pressable>
       </View>
+
+      <Pressable style={styles.recenterButton} onPress={recenter} hitSlop={8}>
+        <Ionicons name="locate" size={18} color={colors.text} />
+      </Pressable>
     </View>
   );
 }
@@ -138,5 +146,21 @@ const styles = StyleSheet.create({
   zoomDivider: {
     height: 1,
     backgroundColor: colors.divider,
+  },
+  recenterButton: {
+    position: 'absolute',
+    bottom: spacing.s4,
+    right: spacing.s4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
