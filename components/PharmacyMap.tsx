@@ -4,6 +4,7 @@ import MapView, { Marker, Region } from "react-native-maps";
 import { Pressable, StyleSheet, View } from "react-native";
 import { colors, radii, spacing } from "../theme/tokens";
 import { Pharmacy } from "../types/pharmacy";
+import { UserLocationMarker } from "./UserLocationMarker";
 
 const NIAMEY_LAT = 13.5137;
 const NIAMEY_LNG = 2.1098;
@@ -89,13 +90,7 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
           />
         ))}
 
-        {userLocation && (
-          <Marker coordinate={userLocation} title="Vous êtes ici" anchor={{ x: 0.5, y: 0.5 }}>
-            <View style={styles.userDotRing}>
-              <View style={styles.userDot} />
-            </View>
-          </Marker>
-        )}
+        {userLocation && <UserLocationMarker coordinate={userLocation} />}
       </MapView>
 
       <View style={styles.zoomControls}>
@@ -133,24 +128,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-  },
-  // A blue dot rather than a pin shape, so it's never mistaken for a
-  // pharmacy marker at a glance.
-  userDotRing: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: 'rgba(66, 133, 244, 0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  userDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#4285f4',
-    borderWidth: 2,
-    borderColor: colors.white,
   },
   zoomControls: {
     position: "absolute",
