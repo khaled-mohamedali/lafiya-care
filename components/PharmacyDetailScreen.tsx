@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDeviceLocation } from '../hooks/useDeviceLocation';
 import { useIsOffline } from '../hooks/useIsOffline';
 import { colors, fonts, fontSizes, radii, spacing } from '../theme/tokens';
 import { RootStackParamList } from '../types/navigation';
@@ -15,6 +16,7 @@ import {
 import { formatGardeUntil, getOpenStatus, getTodayHoursText, getWeeklyHours } from '../utils/hours';
 import { MapStrip } from './MapStrip';
 import { OfflineBanner } from './OfflineBanner';
+import { PharmacyRouteMap } from './PharmacyRouteMap';
 
 function formatDistance(distanceM: number): string {
   const km = distanceM / 1000;
@@ -26,6 +28,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'PharmacyDetail'>;
 export function PharmacyDetailScreen({ route, navigation }: Props) {
   const { pharmacy } = route.params;
   const isOffline = useIsOffline();
+  const { coords: userLocation } = useDeviceLocation();
   const [isSaved, setIsSaved] = useState(false);
   const [showWeeklyHours, setShowWeeklyHours] = useState(false);
 
@@ -117,7 +120,16 @@ export function PharmacyDetailScreen({ route, navigation }: Props) {
               {pharmacy.address || 'Adresse non disponible'}
             </Text>
           </View>
-          <MapStrip />
+          {canNavigate ? (
+            <PharmacyRouteMap
+              pharmacy={{ latitude: pharmacy.latitude, longitude: pharmacy.longitude }}
+              pharmacyName={pharmacy.name}
+              onGarde={pharmacy.on_garde}
+              userLocation={userLocation}
+            />
+          ) : (
+            <MapStrip />
+          )}
         </View>
 
         <View style={styles.actionsSection}>
