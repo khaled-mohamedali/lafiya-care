@@ -2,9 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Pharmacy } from '../types/pharmacy';
 
-// Hardcoded to Niamey, Niger for this milestone — device GPS comes later.
-const NIAMEY_LAT = 13.5137;
-const NIAMEY_LNG = 2.1098;
 const DEFAULT_RADIUS_M = 5000;
 
 type Status = 'loading' | 'success' | 'error' | 'empty';
@@ -15,7 +12,13 @@ interface State {
   error: string | null;
 }
 
-export function usePharmaciesNearby() {
+interface Args {
+  latitude: number;
+  longitude: number;
+  radiusM?: number;
+}
+
+export function usePharmaciesNearby({ latitude, longitude, radiusM = DEFAULT_RADIUS_M }: Args) {
   const [state, setState] = useState<State>({
     status: 'loading',
     pharmacies: [],
@@ -26,9 +29,9 @@ export function usePharmaciesNearby() {
     setState({ status: 'loading', pharmacies: [], error: null });
 
     const { data, error } = await supabase.rpc('pharmacies_nearby', {
-      user_lat: NIAMEY_LAT,
-      user_lng: NIAMEY_LNG,
-      radius_m: DEFAULT_RADIUS_M,
+      user_lat: latitude,
+      user_lng: longitude,
+      radius_m: radiusM,
     });
 
     if (error) {
@@ -42,7 +45,7 @@ export function usePharmaciesNearby() {
       pharmacies,
       error: null,
     });
-  }, []);
+  }, [latitude, longitude, radiusM]);
 
   useEffect(() => {
     fetchPharmacies();
