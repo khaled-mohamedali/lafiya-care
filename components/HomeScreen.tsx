@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useCachedPharmaciesNearby } from "../hooks/useCachedPharmaciesNearby";
 import { useDeviceLocation } from "../hooks/useDeviceLocation";
 import { useIsOffline } from "../hooks/useIsOffline";
+import { useSearchLocation } from "../hooks/useSearchLocation";
 import { colors, fonts, fontSizes, radii, spacing } from "../theme/tokens";
 import { RootStackParamList } from "../types/navigation";
 import { matchesQuery } from "../utils/search";
@@ -29,10 +30,11 @@ type ViewMode = "list" | "map";
 
 export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { status, pharmacies, error, refetch, isShowingCachedData, cachedAt } =
-    useCachedPharmaciesNearby();
   const isOffline = useIsOffline();
   const { label: deviceLocationLabel, coords: userLocation } = useDeviceLocation();
+  const searchLocation = useSearchLocation(userLocation);
+  const { status, pharmacies, error, refetch, isShowingCachedData, cachedAt } =
+    useCachedPharmaciesNearby(searchLocation);
   const [filter, setFilter] = useState<Filter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [query, setQuery] = useState("");
