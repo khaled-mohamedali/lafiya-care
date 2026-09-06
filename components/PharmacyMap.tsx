@@ -20,6 +20,9 @@ const DEFAULT_REGION: Region = {
 const MIN_DELTA = 0.003;
 const MAX_DELTA = 0.3;
 
+// Street-level zoom used when recentering on the user's live position.
+const RECENTER_DELTA = 0.01;
+
 interface Props {
   pharmacies: Pharmacy[];
   onMarkerPress: (pharmacy: Pharmacy) => void;
@@ -53,7 +56,13 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
   };
 
   const recenter = () => {
-    mapRef.current?.animateToRegion(DEFAULT_REGION, 300);
+    // Prefer the user's live position (same coordinates as their map pin);
+    // fall back to the default city-wide view when it's unavailable
+    // (permission denied, no fix yet) rather than doing nothing.
+    const target: Region = userLocation
+      ? { ...userLocation, latitudeDelta: RECENTER_DELTA, longitudeDelta: RECENTER_DELTA }
+      : DEFAULT_REGION;
+    mapRef.current?.animateToRegion(target, 300);
   };
 
   return (
