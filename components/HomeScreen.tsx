@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCachedPharmaciesNearby } from "../hooks/useCachedPharmaciesNearby";
-import { useDeviceLocationLabel } from "../hooks/useDeviceLocationLabel";
+import { useDeviceLocation } from "../hooks/useDeviceLocation";
 import { useIsOffline } from "../hooks/useIsOffline";
 import { colors, fonts, fontSizes, radii, spacing } from "../theme/tokens";
 import { RootStackParamList } from "../types/navigation";
@@ -30,7 +30,7 @@ export function HomeScreen() {
   const { status, pharmacies, error, refetch, isShowingCachedData, cachedAt } =
     useCachedPharmaciesNearby();
   const isOffline = useIsOffline();
-  const deviceLocationLabel = useDeviceLocationLabel();
+  const { label: deviceLocationLabel, coords: userLocation } = useDeviceLocation();
   const [filter, setFilter] = useState<Filter>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
@@ -182,6 +182,7 @@ export function HomeScreen() {
       {status === "success" && filteredPharmacies.length > 0 && viewMode === "map" && (
         <PharmacyMap
           pharmacies={filteredPharmacies}
+          userLocation={userLocation}
           onMarkerPress={(pharmacy) =>
             navigation.navigate("PharmacyDetail", { pharmacy })
           }
