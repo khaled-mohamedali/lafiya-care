@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useRef } from 'react';
-import MapView, { Marker, Region } from 'react-native-maps';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { colors, radii, spacing } from '../theme/tokens';
-import { Pharmacy } from '../types/pharmacy';
+import { Ionicons } from "@expo/vector-icons";
+import { useRef } from "react";
+import MapView, { Marker, Region } from "react-native-maps";
+import { Pressable, StyleSheet, View } from "react-native";
+import { colors, radii, spacing } from "../theme/tokens";
+import { Pharmacy } from "../types/pharmacy";
 
 const NIAMEY_LAT = 13.5137;
 const NIAMEY_LNG = 2.1098;
@@ -38,8 +38,16 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
     const current = regionRef.current;
     const next: Region = {
       ...current,
-      latitudeDelta: clamp(current.latitudeDelta * factor, MIN_DELTA, MAX_DELTA),
-      longitudeDelta: clamp(current.longitudeDelta * factor, MIN_DELTA, MAX_DELTA),
+      latitudeDelta: clamp(
+        current.latitudeDelta * factor,
+        MIN_DELTA,
+        MAX_DELTA,
+      ),
+      longitudeDelta: clamp(
+        current.longitudeDelta * factor,
+        MIN_DELTA,
+        MAX_DELTA,
+      ),
     };
     mapRef.current?.animateToRegion(next, 200);
   };
@@ -61,9 +69,12 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
         {pharmacies.map((pharmacy) => (
           <Marker
             key={pharmacy.id}
-            coordinate={{ latitude: pharmacy.latitude, longitude: pharmacy.longitude }}
+            coordinate={{
+              latitude: pharmacy.latitude,
+              longitude: pharmacy.longitude,
+            }}
             title={pharmacy.name}
-            description={pharmacy.on_garde ? 'De garde' : undefined}
+            description={pharmacy.on_garde ? "De garde" : undefined}
             pinColor={pharmacy.on_garde ? colors.garde : colors.accent}
             onPress={() => onMarkerPress(pharmacy)}
           />
@@ -79,11 +90,19 @@ export function PharmacyMap({ pharmacies, onMarkerPress, userLocation }: Props) 
       </MapView>
 
       <View style={styles.zoomControls}>
-        <Pressable style={styles.zoomButton} onPress={() => zoomBy(0.5)} hitSlop={8}>
+        <Pressable
+          style={styles.zoomButton}
+          onPress={() => zoomBy(0.5)}
+          hitSlop={8}
+        >
           <Ionicons name="add" size={20} color={colors.text} />
         </Pressable>
         <View style={styles.zoomDivider} />
-        <Pressable style={styles.zoomButton} onPress={() => zoomBy(2)} hitSlop={8}>
+        <Pressable
+          style={styles.zoomButton}
+          onPress={() => zoomBy(2)}
+          hitSlop={8}
+        >
           <Ionicons name="remove" size={20} color={colors.text} />
         </Pressable>
       </View>
@@ -125,14 +144,14 @@ const styles = StyleSheet.create({
     borderColor: colors.white,
   },
   zoomControls: {
-    position: 'absolute',
+    position: "absolute",
     top: spacing.s4,
     right: spacing.s4,
     backgroundColor: colors.white,
     borderRadius: radii.map,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
@@ -140,25 +159,25 @@ const styles = StyleSheet.create({
   zoomButton: {
     width: 40,
     height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   zoomDivider: {
     height: 1,
     backgroundColor: colors.divider,
   },
   recenterButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: spacing.s4,
     right: spacing.s4,
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.white,
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
